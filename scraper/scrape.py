@@ -34,7 +34,9 @@ _MEDIA_TYPE_MAP = {
     "round_video": "video",
     "photo": "photo",
     "document": "document",
-    "audio": "document",
+    # Audio files on Telegram's web preview are documents with an audio icon.
+    # Treat them like voice notes so the UI shows the player/duration treatment.
+    "audio": "voice",
 }
 
 
@@ -66,6 +68,29 @@ def _duration_seconds(value: Any) -> Optional[int]:
         return int(digits) if digits else None
 
 
+def _duration_from_text(text: str) -> Optional[int]:
+    """Extract a duration written in Persian text, e.g. "۴۵ دقیقه" or "۲ ساعت"."""
+    normalized = (text or "").translate(
+        str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+    )
+    hours = re.search(
+        r"(\d+)\s*ساعت(?:\s*و\s*(\d+)\s*دقیقه)?", normalized
+    )
+    if hours:
+        return int(hours.group(1)) * 3600 + int(hours.group(2) or 0) * 60
+    minutes = re.search(r"(\d+)\s*دقیقه", normalized)
+    if minutes:
+        return int(minutes.group(1)) * 60
+    clock = re.search(r"(?<!\d)(\d{1,2}):(\d{2})(?::(\d{2}))?(?!\d)", normalized)
+    if clock:
+        seconds = 0
+        for part in clock.groups():
+            if part is not None:
+                seconds = seconds * 60 + int(part)
+        return seconds
+    return None
+
+
 def _media_info(post: Any) -> tuple[str, Optional[int]]:
     """Infer the archive media type and duration (voice/video only)."""
     media = post.media or []
@@ -80,10 +105,12 @@ def _media_info(post: Any) -> tuple[str, Optional[int]]:
     duration = None
     if media_type in ("voice", "video"):
         for item in media:
-            if item.type in ("voice", "video", "round_video"):
+            if item.type in ("voice", "video", "round_video", "audio"):
                 duration = _duration_seconds(item.duration)
                 if duration is not None:
                     break
+        if duration is None:
+            duration = _duration_from_text(post.text or "")
     return media_type, duration
 
 
