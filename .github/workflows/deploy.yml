@@ -1,0 +1,99 @@
+name: Scrape, Build & Deploy
+
+"on":
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  scrape-build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: "scraper/requirements.txt"
+
+      - name: Install Python deps
+        run: pip install -r scraper/requirements.txt
+
+      # tgscraper persists incremental state at ~/.tgscraper/state.json.
+      # A fresh key per run is required because GitHub Actions caches are
+      # immutable; restore-keys picks up the most recent state instead.
+      - name: Restore tgscraper incremental state
+        uses: actions/cache@v4
+        with:
+          path: ~/.tgscraper
+          key: tgscraper-state-mofidot-${{ github.run_id }}
+          restore-keys: |
+            tgscraper-state-mofidot-
+
+      - name: Scrape new posts
+        continue-on-error: true
+        run: python scraper/scrape.py
+
+      - name: Categorize new posts
+        continue-on-error: true
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: python scraper/categorize.py --incremental --auto
+
+      - name: Commit new posts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/posts/
+          git add src/data/categories.json
+          if git diff --staged --quiet; then
+            echo "No new posts."
+          else
+            git commit -m "chore: sync new posts from @mofidot"
+            git push
+          fi
+
+      - name: Install Node deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

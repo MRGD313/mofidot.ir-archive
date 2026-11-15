@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* Tailwind v4 defaults `dark:` to prefers-color-scheme. Use the class strategy
+   so the theme toggle can switch modes manually. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Pagefind UI follows the site theme as well. */
+.dark .pagefind-ui {
+  --pagefind-ui-text: #e2e8f0;
+  --pagefind-ui-background: #0f172a;
+  --pagefind-ui-border: #334155;
+  --pagefind-ui-tag: #1e293b;
+}

@@ -1,0 +1,54 @@
+---
+import { formatDuration, mediaEmoji, mediaLabel, type MediaType } from '../lib/format';
+
+interface Props {
+  type: MediaType;
+  duration?: number | null;
+  size?: 'sm' | 'md';
+}
+
+const { type, duration = null, size = 'md' } = Astro.props;
+
+const palettes: Record<MediaType, string> = {
+  voice:
+    'bg-sky-100 text-sky-700 ring-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:ring-sky-500/30',
+  video:
+    'bg-rose-100 text-rose-700 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:ring-rose-500/30',
+  photo:
+    'bg-emerald-100 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:ring-emerald-500/30',
+  document:
+    'bg-amber-100 text-amber-800 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-500/30',
+  text: 'bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-700/40 dark:text-slate-300 dark:ring-slate-600/50',
+};
+
+const sizes = {
+  sm: 'px-2 py-0.5 text-[11px]',
+  md: 'px-2.5 py-1 text-xs',
+};
+
+const showDuration = (type === 'voice' || type === 'video') && duration !== null;
+const label = mediaLabel(type);
+const durationLabel = formatDuration(duration);
+---
+
+<span
+  class:list={[
+    'inline-flex items-center gap-1.5 rounded-full font-medium ring-1 ring-inset',
+    palettes[type],
+    sizes[size],
+  ]}
+  title={showDuration ? `${label} — ${durationLabel}` : label}
+>
+  <span aria-hidden="true">{mediaEmoji(type)}</span>
+  <span>{label}</span>
+  {
+    showDuration && (
+      <>
+        <span class="opacity-60" aria-hidden="true">
+          •
+        </span>
+        <span dir="ltr">{durationLabel}</span>
+      </>
+    )
+  }
+</span>

@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="جستجو | آرشیو مفیدات"
+  description="جستجو در متن پست‌های آرشیو کانال تلگرام مفیدات"
+>
+  <section data-pagefind-ignore class="mx-auto max-w-3xl space-y-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">
+        جستجو در آرشیو
+      </h1>
+      <p class="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">
+        عبارت موردنظر را بنویسید تا در متن پست‌های آرشیو جستجو شود.
+      </p>
+    </div>
+
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" data-pagefind-ui-css />
+
+    <div
+      id="search"
+      class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 dark:border-slate-700 dark:bg-slate-900"
+    ></div>
+
+    <p
+      id="search-error"
+      class="hidden rounded-2xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200"
+    >
+      جستجو هنوز آماده نیست. لطفاً بعد از ساخت نسخهٔ نهایی سایت دوباره تلاش کنید.
+    </p>
+  </section>
+</BaseLayout>
+
+<script>
+  import { loadPagefindUI, pagefindTranslations } from '../lib/pagefind';
+
+  async function initSearch(): Promise<void> {
+    try {
+      const PagefindUI = await loadPagefindUI();
+      new PagefindUI({
+        element: '#search',
+        showImages: false,
+        showSubResults: true,
+        translations: pagefindTranslations,
+      });
+    } catch {
+      document.getElementById('search-error')?.classList.remove('hidden');
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      void initSearch();
+    });
+  } else {
+    void initSearch();
+  }
+</script>

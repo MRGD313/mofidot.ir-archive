@@ -1,0 +1,63 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { categorySlug, toPersianDigits } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const all = await getCollection('posts');
+  const grouped = new Map<string, CollectionEntry<'posts'>[]>();
+
+  for (const post of all) {
+    const category = post.data.category;
+    if (!category) continue;
+    const list = grouped.get(category) ?? [];
+    list.push(post);
+    grouped.set(category, list);
+  }
+
+  return [...grouped.entries()].map(([category, posts]) => ({
+    params: { slug: categorySlug(category) },
+    props: {
+      category,
+      posts: posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()),
+    },
+  }));
+}
+
+interface Props {
+  category: string;
+  posts: CollectionEntry<'posts'>[];
+}
+
+const { category, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`دسته: ${category} | آرشیو مفیدات`}
+  description={`پست‌های دستهٔ ${category} در آرشیو کانال تلگرام مفیدات`}
+>
+  <section data-pagefind-ignore class="space-y-6">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <a
+          href="/"
+          class="mb-2 inline-flex items-center gap-1 text-xs font-medium text-sky-600 hover:text-sky-500 dark:text-sky-400"
+        >
+          <span aria-hidden="true">→</span>
+          بازگشت به آرشیو
+        </a>
+        <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">
+          دسته: {category}
+        </h1>
+      </div>
+      <p class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+        نمایش {toPersianDigits(posts.length)} پست
+      </p>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => <PostCard post={post} />)}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,160 @@
+---
+// Search modal. Pagefind assets are loaded on demand because they only exist
+// after a production build.
+---
+
+<div>
+  <button
+    id="search-trigger"
+    type="button"
+    aria-label="باز کردن جستجو"
+    aria-haspopup="dialog"
+    aria-controls="search-modal"
+    aria-expanded="false"
+    class="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 text-sm text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+  >
+    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="m20 20-3.5-3.5"></path>
+    </svg>
+    <span class="hidden sm:inline">جستجو…</span>
+  </button>
+
+  <div
+    id="search-modal"
+    class="fixed inset-0 z-[60] hidden overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm sm:p-6"
+  >
+    <div class="absolute inset-0" data-search-backdrop aria-hidden="true"></div>
+
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="search-modal-title"
+      class="relative mx-auto mt-10 w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl sm:mt-20 sm:p-6 dark:border-slate-700 dark:bg-slate-900"
+    >
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <h2 id="search-modal-title" class="text-lg font-bold text-slate-900 dark:text-slate-100">
+          جستجو در آرشیو
+        </h2>
+        <button
+          id="search-close"
+          type="button"
+          aria-label="بستن جستجو"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div id="search-container" class="min-h-[8rem]"></div>
+      <p id="search-fallback" class="hidden rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200">
+        جستجو هنوز آماده نیست. لطفاً بعد از ساخت نسخهٔ نهایی سایت دوباره تلاش کنید.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { loadPagefindUI, pagefindTranslations } from '../lib/pagefind';
+
+  const trigger = document.getElementById('search-trigger');
+  const modal = document.getElementById('search-modal');
+  const closeButton = document.getElementById('search-close');
+  const fallback = document.getElementById('search-fallback');
+  let loaded = false;
+  let ui: unknown = null;
+
+  function isOpen(): boolean {
+    return modal !== null && !modal.classList.contains('hidden');
+  }
+
+  function focusables(): HTMLElement[] {
+    if (!modal) return [];
+    return Array.from(
+      modal.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+  }
+
+  async function open(): Promise<void> {
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    trigger?.setAttribute('aria-expanded', 'true');
+
+    if (!loaded) {
+      try {
+        const PagefindUI = await loadPagefindUI();
+        if (!ui) {
+          ui = new PagefindUI({
+            element: '#search-container',
+            showImages: false,
+            showSubResults: true,
+            translations: pagefindTranslations,
+          });
+        }
+        loaded = true;
+        fallback?.classList.add('hidden');
+      } catch {
+        fallback?.classList.remove('hidden');
+      }
+    }
+
+    requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLInputElement>('#search-container input')
+        ?.focus({ preventScroll: true });
+      modal.scrollTop = 0;
+    });
+  }
+
+  function close(): void {
+    if (!modal) return;
+    modal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    trigger?.setAttribute('aria-expanded', 'false');
+    trigger?.focus();
+  }
+
+  trigger?.addEventListener('click', () => {
+    void open();
+  });
+
+  closeButton?.addEventListener('click', close);
+
+  modal?.querySelector('[data-search-backdrop]')?.addEventListener('click', close);
+
+  document.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      if (isOpen()) close();
+      else void open();
+      return;
+    }
+
+    if (!isOpen()) return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+  });
+</script>
