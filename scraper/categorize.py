@@ -490,7 +490,7 @@ def _categorize(args: argparse.Namespace) -> int:
 
         results.append((post_id, category, method))
 
-        if not args.dry_run:
+        if not args.dry_run and post.get("category") != category:
             post["category"] = category
             _atomic_write_json(path, post)
 
