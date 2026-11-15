@@ -7,5 +7,9 @@
   "views": 11100,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/99",
-  "category": "خودشناسی و رشد فردی"
+  "categories": [
+    "خودشناسی و رشد فردی",
+    "مدیریت و رهبری",
+    "مذاکره و ارتباطات"
+  ]
 }

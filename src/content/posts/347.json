@@ -7,5 +7,9 @@
   "views": 2520,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/347",
-  "category": "تفکر و تصمیم‌گیری"
+  "categories": [
+    "تفکر و تصمیم‌گیری",
+    "فلسفه، دین و اندیشه",
+    "سلامت و پزشکی"
+  ]
 }

@@ -7,5 +7,7 @@
   "views": 3010,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/284",
-  "category": "تفکر و تصمیم‌گیری"
+  "categories": [
+    "تفکر و تصمیم‌گیری"
+  ]
 }

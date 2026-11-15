@@ -9,11 +9,11 @@ export async function getStaticPaths() {
   const grouped = new Map<string, CollectionEntry<'posts'>[]>();
 
   for (const post of all) {
-    const category = post.data.category;
-    if (!category) continue;
-    const list = grouped.get(category) ?? [];
-    list.push(post);
-    grouped.set(category, list);
+    for (const category of post.data.categories) {
+      const list = grouped.get(category) ?? [];
+      list.push(post);
+      grouped.set(category, list);
+    }
   }
 
   return [...grouped.entries()].map(([category, posts]) => ({

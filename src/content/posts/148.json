@@ -7,5 +7,9 @@
   "views": 2400,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/148",
-  "category": "مذاکره و ارتباطات"
+  "categories": [
+    "مذاکره و ارتباطات",
+    "استارتاپ و کسب‌وکار",
+    "تحصیل، دانشگاه و مسیر شغلی"
+  ]
 }

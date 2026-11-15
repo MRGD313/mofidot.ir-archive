@@ -7,5 +7,9 @@
   "views": 1520,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/360",
-  "category": "خودشناسی و رشد فردی"
+  "categories": [
+    "خودشناسی و رشد فردی",
+    "تفکر و تصمیم‌گیری",
+    "مذاکره و ارتباطات"
+  ]
 }

@@ -90,7 +90,7 @@ python scraper/categorize.py --incremental --auto
 
 - اگر Secret با نام `DEEPSEEK_API_KEY` در **Settings → Secrets and variables → Actions** تنظیم شده باشد، پست‌های جدید با LLM دسته‌بندی می‌شوند.
 - در غیر این صورت fallback کلیدواژه‌ای (رایگان) استفاده می‌شود.
-- اگر `src/data/categories.json` خالی باشد، این مرحله با خطا خارج می‌شود. چون `continue-on-error: true` دارد، workflow ادامه می‌دهد و پست‌ها با `category: null` ذخیره می‌شوند.
+- اگر `src/data/categories.json` خالی باشد، این مرحله با خطا خارج می‌شود. چون `continue-on-error: true` دارد، workflow ادامه می‌دهد و پست‌ها با `categories: []` ذخیره می‌شوند.
 - فایل `src/data/categories.json` شامل `name` و `keywords` هر دسته است. برای افزودن یا ویرایش دسته‌ها، همین فایل را دستی تغییر دهید و دستور `--initial` یا `--incremental --auto` را اجرا کنید. Build بعدی، دسته‌های جدید را از پست‌ها استخراج می‌کند.
 - مرحلهٔ categorization فایل‌های `src/content/posts/*.json` را به‌روزرسانی می‌کند و مرحلهٔ commit هم پست‌ها و `src/data/categories.json` را stage می‌کند.
 - کارهای discovery و بازبینی دسته‌ها در `docs/categorization.md` توضیح داده شده‌اند.

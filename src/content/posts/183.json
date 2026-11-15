@@ -7,5 +7,7 @@
   "views": 6840,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/183",
-  "category": "سلامت و پزشکی"
+  "categories": [
+    "سلامت و پزشکی"
+  ]
 }

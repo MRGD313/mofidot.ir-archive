@@ -18,7 +18,7 @@ const posts = defineCollection({
     views: z.number().int().nonnegative(),
     reactions: z.number().int().nonnegative(),
     telegram_link: z.string().url(),
-    category: z.string().nullable(),
+    categories: z.array(z.string()).default([]),
   }),
 });
 

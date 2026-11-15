@@ -13,18 +13,14 @@ const all = (await getCollection('posts')).sort(
 );
 
 const categories = [
-  ...new Set(
-    all
-      .map((post) => post.data.category)
-      .filter((category): category is string => Boolean(category)),
-  ),
+  ...new Set(all.flatMap((post) => post.data.categories)),
 ].sort((a, b) => a.localeCompare(b, 'fa'));
 
 const activeCategory = Astro.url.searchParams.get('cat');
 const activeMedia = Astro.url.searchParams.get('media');
 
 const matchesFilters = (post: (typeof all)[number]): boolean =>
-  (!activeCategory || post.data.category === activeCategory) &&
+  (!activeCategory || post.data.categories.includes(activeCategory)) &&
   (!activeMedia || post.data.media_type === activeMedia);
 
 let matchedSoFar = 0;
@@ -91,7 +87,7 @@ const hasPosts = all.length > 0;
         items.map(({ post, visible }) => (
           <div
             data-post
-            data-category={post.data.category ?? ''}
+            data-categories={post.data.categories.join('|')}
             data-media={post.data.media_type}
             class:list={['h-full', visible ? '' : 'hidden']}
           >
@@ -167,8 +163,11 @@ const hasPosts = all.length > 0;
       let matched = 0;
 
       for (const card of cards) {
+        const cardCategories = (card.dataset.categories || '')
+          .split('|')
+          .filter(Boolean);
         const categoryMatches =
-          !activeCategory || card.dataset.category === activeCategory;
+          !activeCategory || cardCategories.includes(activeCategory);
         const mediaMatches = !activeMedia || card.dataset.media === activeMedia;
         const matches = categoryMatches && mediaMatches;
         const visible = matches && matched < visibleLimit;

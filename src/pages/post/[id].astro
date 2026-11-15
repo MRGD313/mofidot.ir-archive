@@ -58,7 +58,10 @@ function linkify(value: string): string {
 }
 
 const textHtml = linkify(data.text);
-const categoryUrl = data.category ? `/category/${categorySlug(data.category)}/` : null;
+const categoryLinks = data.categories.map((category) => ({
+  name: category,
+  url: `/category/${categorySlug(category)}/`,
+}));
 ---
 
 <BaseLayout
@@ -72,10 +75,20 @@ const categoryUrl = data.category ? `/category/${categorySlug(data.category)}/` 
       <a href="/" class="hover:text-brand-blue dark:hover:text-brand-blue-light">خانه</a>
       <span aria-hidden="true">›</span>
       {
-        categoryUrl && data.category ? (
-          <a href={categoryUrl} class="hover:text-brand-blue dark:hover:text-brand-blue-light">
-            {data.category}
-          </a>
+        categoryLinks.length > 0 ? (
+          <span class="inline-flex flex-wrap items-center gap-1">
+            {categoryLinks.map((category, index) => (
+              <>
+                {index > 0 && <span aria-hidden="true">،</span>}
+                <a
+                  href={category.url}
+                  class="hover:text-brand-blue dark:hover:text-brand-blue-light"
+                >
+                  {category.name}
+                </a>
+              </>
+            ))}
+          </span>
         ) : (
           <span>بدون دسته</span>
         )
@@ -137,15 +150,17 @@ const categoryUrl = data.category ? `/category/${categorySlug(data.category)}/` 
       </section>
 
       {
-        data.category && categoryUrl && (
+        categoryLinks.length > 0 && (
           <div class="mt-6 flex flex-wrap items-center gap-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">دسته:</span>
-            <a
-              href={categoryUrl}
-              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-brand-blue/10 hover:text-brand-blue-dark dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-brand-blue/20 dark:hover:text-brand-blue-light"
-            >
-              #{data.category}
-            </a>
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">دسته‌ها:</span>
+            {categoryLinks.map((category) => (
+              <a
+                href={category.url}
+                class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-brand-blue/10 hover:text-brand-blue-dark dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-brand-blue/20 dark:hover:text-brand-blue-light"
+              >
+                #{category.name}
+              </a>
+            ))}
           </div>
         )
       }

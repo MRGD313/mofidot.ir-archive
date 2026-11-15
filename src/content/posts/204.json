@@ -7,5 +7,7 @@
   "views": 2870,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/204",
-  "category": "فلسفه، دین و اندیشه"
+  "categories": [
+    "فلسفه، دین و اندیشه"
+  ]
 }

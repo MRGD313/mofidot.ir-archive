@@ -140,15 +140,14 @@ def _normalize(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip().lower()
 
 
-def _keyword_match(text: str, categories: list[Category]) -> Optional[str]:
+def _keyword_matches(text: str, categories: list[Category]) -> list[str]:
+    """Return the strongest 1-3 categories for a post."""
     normalized_text = _normalize(text)
     if not normalized_text:
-        return None
+        return []
 
-    best_name: Optional[str] = None
-    best_score = 0
-
-    for category in categories:
+    scored: list[tuple[int, int, str]] = []
+    for order, category in enumerate(categories):
         score = 0
         for keyword in category.get("keywords", []):
             normalized_keyword = _normalize(keyword)
@@ -158,11 +157,38 @@ def _keyword_match(text: str, categories: list[Category]) -> Optional[str]:
                 rf"(?<!\w){re.escape(normalized_keyword)}(?!\w)", re.UNICODE
             )
             score += len(pattern.findall(normalized_text))
-        if score > best_score:
-            best_score = score
-            best_name = category["name"]
+        if score > 0:
+            scored.append((score, order, category["name"]))
 
-    return best_name
+    if not scored:
+        return []
+
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    best_score = scored[0][0]
+
+    # One weak keyword is not enough to spread a post across many categories.
+    if best_score == 1:
+        return [scored[0][2]]
+
+    threshold = max(1, best_score * 0.5)
+    return [name for score, _, name in scored if score >= threshold][:3]
+
+
+def _keyword_match(text: str, categories: list[Category]) -> Optional[str]:
+    """Backward-compatible single-category helper."""
+    matches = _keyword_matches(text, categories)
+    return matches[0] if matches else None
+
+
+def _post_categories(post: dict[str, Any]) -> list[str]:
+    """Read the new categories array, falling back to the legacy category field."""
+    value = post.get("categories")
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    legacy = post.get("category")
+    if isinstance(legacy, str) and legacy.strip():
+        return [legacy.strip()]
+    return []
 
 
 def _extract_json(text: str) -> Any:
@@ -370,9 +396,9 @@ def _chunks(values: list[tuple[Path, dict[str, Any]]], size: int):
 
 def _categorize_with_llm(
     posts: list[tuple[Path, dict[str, Any]]], categories: list[Category]
-) -> dict[int, Optional[str]]:
+) -> dict[int, list[str]]:
     category_names = [category["name"] for category in categories]
-    assignments: dict[int, Optional[str]] = {}
+    assignments: dict[int, list[str]] = {}
 
     taxonomy_lines = []
     for category in categories:
@@ -389,10 +415,10 @@ def _categorize_with_llm(
             {
                 "role": "system",
                 "content": (
-                    "You categorize Persian Telegram posts. Choose exactly one category "
-                    "name from the provided list for each post, or null when no category "
-                    "fits. Return only JSON in the form "
-                    '{"assignments":{"POST_ID":"CATEGORY_NAME_OR_NULL"}}.'
+                    "You categorize Persian Telegram posts. Choose 1 to 3 category "
+                    "names from the provided list for each post. A post may genuinely "
+                    "belong to more than one category. Return only JSON in the form "
+                    '{"assignments":{"POST_ID":["CATEGORY_NAME", "..."]}}.'
                 ),
             },
             {
@@ -411,27 +437,34 @@ def _categorize_with_llm(
         if not isinstance(mapping, dict):
             continue
 
-        for post_id, category_name in mapping.items():
+        for post_id, category_names_value in mapping.items():
             try:
                 normalized_id = int(post_id)
             except (TypeError, ValueError):
                 continue
-            if category_name in category_names:
-                assignments[normalized_id] = str(category_name)
-            elif category_name is None:
-                assignments[normalized_id] = None
+
+            if isinstance(category_names_value, str):
+                candidates = [category_names_value]
+            elif isinstance(category_names_value, list):
+                candidates = [str(item) for item in category_names_value]
+            else:
+                candidates = []
+
+            valid_names = []
+            for name in candidates:
+                if name in category_names and name not in valid_names:
+                    valid_names.append(name)
+            assignments[normalized_id] = valid_names[:3]
 
     return assignments
 
 
-def _print_assignment_table(
-    results: list[tuple[int, Optional[str], str]]
-) -> None:
+def _print_assignment_table(results: list[tuple[int, list[str], str]]) -> None:
     print()
-    print("| شناسه | دسته | روش |")
+    print("| شناسه | دسته‌ها | روش |")
     print("| --- | --- | --- |")
-    for post_id, category, method in results:
-        print(f"| {post_id} | {category or '—'} | {method} |")
+    for post_id, post_categories, method in results:
+        print(f"| {post_id} | {'، '.join(post_categories) or '—'} | {method} |")
     print()
 
 
@@ -445,7 +478,7 @@ def _categorize(args: argparse.Namespace) -> int:
     selected = [
         item
         for item in all_posts
-        if args.force or not str(item[1].get("category") or "").strip()
+        if args.force or not _post_categories(item[1])
     ]
     if args.limit is not None:
         selected = selected[: args.limit]
@@ -455,7 +488,7 @@ def _categorize(args: argparse.Namespace) -> int:
         print("categorized 0 via LLM, 0 via fallback, 0 left null.")
         return 0
 
-    llm_assignments: dict[int, Optional[str]] = {}
+    llm_assignments: dict[int, list[str]] = {}
     use_llm = args.auto and bool(os.environ.get("DEEPSEEK_API_KEY", "").strip())
     if use_llm:
         try:
@@ -466,21 +499,22 @@ def _categorize(args: argparse.Namespace) -> int:
                 file=sys.stderr,
             )
 
-    results: list[tuple[int, Optional[str], str]] = []
+    results: list[tuple[int, list[str], str]] = []
     llm_count = 0
     fallback_count = 0
     null_count = 0
 
     for path, post in selected:
         post_id = int(post["id"])
-        category = llm_assignments.get(post_id)
-        method = "LLM"
+        assigned = llm_assignments.get(post_id) or []
+        method = "LLM" if assigned else "fallback"
 
-        if not category:
-            category = _keyword_match(str(post.get("text", "")), categories)
-            method = "fallback" if category else "null"
+        if not assigned:
+            assigned = _keyword_matches(str(post.get("text", "")), categories)
+            if not assigned:
+                method = "null"
 
-        if category:
+        if assigned:
             if method == "LLM":
                 llm_count += 1
             else:
@@ -488,10 +522,11 @@ def _categorize(args: argparse.Namespace) -> int:
         else:
             null_count += 1
 
-        results.append((post_id, category, method))
+        results.append((post_id, assigned, method))
 
-        if not args.dry_run and post.get("category") != category:
-            post["category"] = category
+        if not args.dry_run and _post_categories(post) != assigned:
+            post["categories"] = assigned
+            post.pop("category", None)
             _atomic_write_json(path, post)
 
     _print_assignment_table(results)
@@ -522,7 +557,7 @@ def _build_parser() -> argparse.ArgumentParser:
     modes.add_argument(
         "--initial",
         action="store_true",
-        help="Assign categories to posts that do not have one yet.",
+        help="Assign categories to posts that do not have any yet.",
     )
     modes.add_argument(
         "--incremental",
@@ -538,7 +573,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Re-categorize posts even if they already have a category.",
+        help="Re-categorize posts even if they already have categories.",
     )
     parser.add_argument(
         "--limit",

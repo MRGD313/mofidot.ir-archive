@@ -7,5 +7,8 @@
   "views": 2690,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/195",
-  "category": "فلسفه، دین و اندیشه"
+  "categories": [
+    "فلسفه، دین و اندیشه",
+    "خودشناسی و رشد فردی"
+  ]
 }

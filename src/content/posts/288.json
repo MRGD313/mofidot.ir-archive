@@ -7,5 +7,8 @@
   "views": 2720,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/288",
-  "category": "فلسفه، دین و اندیشه"
+  "categories": [
+    "فلسفه، دین و اندیشه",
+    "تفکر و تصمیم‌گیری"
+  ]
 }

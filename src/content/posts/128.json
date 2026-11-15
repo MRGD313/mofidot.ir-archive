@@ -7,5 +7,9 @@
   "views": 4390,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/128",
-  "category": "مدیریت و رهبری"
+  "categories": [
+    "مدیریت و رهبری",
+    "خودشناسی و رشد فردی",
+    "استارتاپ و کسب‌وکار"
+  ]
 }

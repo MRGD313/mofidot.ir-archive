@@ -7,5 +7,8 @@
   "views": 3950,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/266",
-  "category": "تحصیل، دانشگاه و مسیر شغلی"
+  "categories": [
+    "تحصیل، دانشگاه و مسیر شغلی",
+    "تفکر و تصمیم‌گیری"
+  ]
 }

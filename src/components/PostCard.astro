@@ -15,7 +15,7 @@ const hashtags = Array.from(
   data.text.matchAll(/#([\p{L}\p{N}_]+)/gu),
   (match) => match[1] ?? '',
 ).filter(Boolean);
-const tags = [...new Set([...(data.category ? [data.category] : []), ...hashtags])].slice(0, 3);
+const tags = [...new Set([...data.categories, ...hashtags])].slice(0, 4);
 
 const postHref = `/post/${data.id}`;
 const views = toPersianDigits(data.views);

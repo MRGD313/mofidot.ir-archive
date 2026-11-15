@@ -125,7 +125,7 @@ def _post_to_dict(post: Any) -> dict[str, Any]:
         "views": int(post.views or 0),
         "reactions": int(sum(value or 0 for value in (post.reactions or {}).values())),
         "telegram_link": f"https://t.me/{CHANNEL}/{post.id}",
-        "category": None,
+        "categories": [],
     }
 
 

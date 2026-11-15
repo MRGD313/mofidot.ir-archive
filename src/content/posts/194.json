@@ -7,5 +7,7 @@
   "views": 5520,
   "reactions": 0,
   "telegram_link": "https://t.me/mofidot/194",
-  "category": "مدیریت و رهبری"
+  "categories": [
+    "مدیریت و رهبری"
+  ]
 }

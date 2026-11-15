@@ -57,13 +57,15 @@ python scraper/categorize.py --discover --from-json discovery.json --dry-run
 python scraper/categorize.py --initial
 ```
 
-این دستور همهٔ پست‌هایی را که `category` آن‌ها `null` است پردازش می‌کند. اگر `DEEPSEEK_API_KEY` وجود داشته باشد و `--auto` را هم اضافه کنید، از LLM استفاده می‌شود؛ در غیر این صورت fallback کلیدواژه‌ای اجرا می‌شود.
+این دستور همهٔ پست‌هایی را که آرایهٔ `categories` آن‌ها خالی است پردازش می‌کند. اگر `DEEPSEEK_API_KEY` وجود داشته باشد و `--auto` را هم اضافه کنید، از LLM استفاده می‌شود؛ در غیر این صورت fallback کلیدواژه‌ای اجرا می‌شود. هر پست می‌تواند هم‌زمان در ۱ تا ۳ دسته قرار بگیرد.
 
 برای دیدن نتیجه بدون تغییر فایل‌ها:
 
 ```bash
 python scraper/categorize.py --initial --dry-run
 ```
+
+هر پست می‌تواند در چند دسته قرار بگیرد. fallback کلیدواژه‌ای تا ۳ دستهٔ با بیشترین امتیاز را انتخاب می‌کند و LLM هم می‌تواند ۱ تا ۳ دسته برگرداند. در صفحهٔ پست همهٔ دسته‌ها به‌صورت پیل نمایش داده می‌شوند و پست در همهٔ صفحه‌های دستهٔ خودش هم فهرست می‌شود.
 
 ### د) Commit و Push
 
@@ -73,7 +75,7 @@ git commit -m "chore: categorize posts"
 git push
 ```
 
-بعد از push، workflow سایت را دوباره می‌سازد و صفحه‌های دسته‌ها را از روی مقادیر `category` در پست‌ها می‌سازد.
+بعد از push، workflow سایت را دوباره می‌سازد و صفحه‌های دسته‌ها را از روی مقادیر آرایهٔ `categories` در پست‌ها می‌سازد. هر پست در همهٔ دسته‌های خودش نمایش داده می‌شود.
 
 ## ۳) استفاده از OpenCode بدون API Key
 
@@ -113,7 +115,7 @@ python scraper/categorize.py --initial
 
 دو راه وجود دارد:
 
-1. مقدار `category` همهٔ پست‌ها را `null` کنید و بعد `--initial` را اجرا کنید.
+1. مقدار `categories` همهٔ پست‌ها را به `[]` تغییر دهید و بعد `--initial` را اجرا کنید.
 2. از `--force` استفاده کنید:
 
 ```bash
@@ -136,7 +138,7 @@ python scraper/categorize.py --initial --force --dry-run
 
 ## ۷) نکات عملیاتی
 
-- **Idempotency:** در حالت عادی فقط پست‌های `category: null` پردازش می‌شوند. اجرای دوبارهٔ `--incremental` تغییری ایجاد نمی‌کند و همان پست‌ها دوباره نوشته نمی‌شوند.
+- **Idempotency:** در حالت عادی فقط پست‌هایی پردازش می‌شوند که آرایهٔ `categories` آن‌ها خالی است. اجرای دوبارهٔ `--incremental` تغییری ایجاد نمی‌کند و همان پست‌ها دوباره نوشته نمی‌شوند.
 - **Atomic writes:** هر فایل پست با یک فایل موقت در همان پوشه نوشته و سپس با `os.replace` جایگزین می‌شود. اگر اجرا وسط کار قطع شود، فایل نیمه‌نوشته باقی نمی‌ماند.
 - **Guard برای تاکسونومی خالی:** اگر `src/data/categories.json` خالی باشد، دستورهای دسته‌بندی با این پیام خارج می‌شوند:
 
@@ -144,6 +146,6 @@ python scraper/categorize.py --initial --force --dry-run
   categories.json is empty. Run --discover first, or add categories manually.
   ```
 
-  در GitHub Actions این خطا با `continue-on-error` مدیریت می‌شود و پست‌ها با `category: null` باقی می‌مانند.
+  در GitHub Actions این خطا با `continue-on-error` مدیریت می‌شود و پست‌ها با `categories: []` باقی می‌مانند.
 - **Dry-run:** با `--dry-run` هیچ فایل پست یا فایل دسته‌ای نوشته نمی‌شود؛ فقط جدول و خلاصه چاپ می‌شود.
 - **CI:** اگر Secret با نام `DEEPSEEK_API_KEY` تنظیم شده باشد، workflow از LLM استفاده می‌کند؛ در غیر این صورت fallback کلیدواژه‌ای اجرا می‌شود.
