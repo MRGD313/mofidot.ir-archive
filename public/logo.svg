@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="لوگوی مفیدات">
+  <rect x="8" y="3" width="7" height="7" rx="1.6" fill="#e53935" />
+  <rect x="49" y="3" width="7" height="7" rx="1.6" fill="#1e88e5" />
+  <rect x="8" y="54" width="7" height="7" rx="1.6" fill="#e53935" />
+  <rect x="49" y="54" width="7" height="7" rx="1.6" fill="#1e88e5" />
+  <path d="M31 10 10 22v20l21 12V10Z" fill="#e53935" />
+  <path d="M33 10 54 22v20L33 54V10Z" fill="#1e88e5" />
+  <path d="M31 10 10 22l21 12 21-12L31 10Z" fill="#ef5350" />
+  <path d="M33 10 54 22 33 34 31 32V10Z" fill="#42a5f5" />
+</svg>

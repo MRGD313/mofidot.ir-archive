@@ -59,7 +59,7 @@ const hasPosts = all.length > 0;
       </div>
       <p
         id="post-count"
-        class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+        class="rounded-full border border-brand-blue/20 bg-brand-blue/5 px-3 py-1.5 text-xs font-medium text-brand-blue-dark shadow-sm dark:border-brand-blue/30 dark:bg-brand-blue/10 dark:text-brand-blue-light"
       >
         نمایش {toPersianDigits(initialMatches)} پست
       </p>
@@ -70,6 +70,21 @@ const hasPosts = all.length > 0;
       activeCategory={activeCategory}
       activeMedia={activeMedia}
     />
+
+    {
+      categories.length === 0 && (
+        <div
+          data-pagefind-ignore
+          class="rounded-xl bg-amber-50 p-4 text-sm leading-7 text-amber-800 dark:bg-amber-500/10 dark:text-amber-200"
+        >
+          تاکسونومی هنوز ساخته نشده است. برای دسته‌بندی پست‌ها اسکریپت
+          <code dir="ltr" class="inline-block rounded bg-white/50 px-1 py-0.5 dark:bg-black/30">--discover</code>
+          و سپس
+          <code dir="ltr" class="inline-block rounded bg-white/50 px-1 py-0.5 dark:bg-black/30">--initial</code>
+          را اجرا کنید.
+        </div>
+      )
+    }
 
     <div id="posts-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {
@@ -103,7 +118,7 @@ const hasPosts = all.length > 0;
             id="load-more"
             type="button"
             class:list={[
-              'rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800',
+              'rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800',
               initialMatches > INITIAL_LIMIT ? '' : 'hidden',
             ]}
           >

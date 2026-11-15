@@ -11,7 +11,7 @@
     aria-haspopup="dialog"
     aria-controls="search-modal"
     aria-expanded="false"
-    class="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 text-sm text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+    class="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 text-sm text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
   >
     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <circle cx="11" cy="11" r="7"></circle>
@@ -40,7 +40,7 @@
           id="search-close"
           type="button"
           aria-label="بستن جستجو"
-          class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
         >
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M6 6l12 12M18 6 6 18"></path>
@@ -48,7 +48,7 @@
         </button>
       </div>
 
-      <div id="search-container" class="min-h-[8rem]"></div>
+      <div id="search-container" dir="rtl" class="min-h-[8rem]"></div>
       <p id="search-fallback" class="hidden rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200">
         جستجو هنوز آماده نیست. لطفاً بعد از ساخت نسخهٔ نهایی سایت دوباره تلاش کنید.
       </p>
@@ -63,6 +63,14 @@
   const modal = document.getElementById('search-modal');
   const closeButton = document.getElementById('search-close');
   const fallback = document.getElementById('search-fallback');
+
+  // The modal starts inside the sticky header. The header's backdrop-filter
+  // creates a containing block for position: fixed, so move the dialog to the
+  // body to make it cover the real viewport.
+  if (modal && modal.parentElement !== document.body) {
+    document.body.appendChild(modal);
+  }
+
   let loaded = false;
   let ui: unknown = null;
 

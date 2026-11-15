@@ -53,7 +53,7 @@ function linkify(value: string): string {
   return escapeHtml(value).replace(/(https?:\/\/[^\s<]+)/g, (match) => {
     const trailing = match.match(/[.,!?؛،»)\]}]+$/u)?.[0] ?? '';
     const url = trailing ? match.slice(0, -trailing.length) : match;
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="break-all text-sky-600 underline decoration-sky-400/60 underline-offset-2 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300">${url}</a>${trailing}`;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="break-all text-brand-blue underline decoration-brand-blue/50 underline-offset-2 hover:text-brand-blue-dark dark:text-brand-blue-light dark:hover:text-brand-blue">${url}</a>${trailing}`;
   });
 }
 
@@ -69,11 +69,11 @@ const categoryUrl = data.category ? `/category/${categorySlug(data.category)}/` 
 >
   <div class="mx-auto max-w-3xl">
     <nav aria-label="مسیر صفحه" class="mb-4 flex flex-wrap items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-      <a href="/" class="hover:text-sky-600 dark:hover:text-sky-400">خانه</a>
+      <a href="/" class="hover:text-brand-blue dark:hover:text-brand-blue-light">خانه</a>
       <span aria-hidden="true">›</span>
       {
         categoryUrl && data.category ? (
-          <a href={categoryUrl} class="hover:text-sky-600 dark:hover:text-sky-400">
+          <a href={categoryUrl} class="hover:text-brand-blue dark:hover:text-brand-blue-light">
             {data.category}
           </a>
         ) : (
@@ -116,20 +116,20 @@ const categoryUrl = data.category ? `/category/${categorySlug(data.category)}/` 
         )
       }
 
-      <section class="mt-8 rounded-3xl bg-sky-50 p-5 ring-1 ring-sky-200 sm:p-6 dark:bg-sky-500/10 dark:ring-sky-500/30">
-        <p class="text-base font-bold text-sky-900 dark:text-sky-100">
+      <section class="mt-8 rounded-3xl bg-brand-blue/5 p-5 ring-1 ring-brand-blue/20 sm:p-6 dark:bg-brand-blue/10 dark:ring-brand-blue/30">
+        <p class="text-base font-bold text-brand-blue-dark dark:text-brand-blue-light">
           <span aria-hidden="true">{mediaEmoji(data.media_type)}</span>
           {' '}
           این {mediaLabel(data.media_type)} در تلگرام است
         </p>
-        <p class="mt-2 text-sm leading-7 text-sky-800/80 dark:text-sky-200/80">
+        <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
           برای شنیدن/دیدن، روی دکمهٔ زیر بزنید.
         </p>
         <a
           href={data.telegram_link}
           target="_blank"
           rel="noopener noreferrer"
-          class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 sm:w-auto dark:bg-sky-500 dark:text-slate-950 dark:hover:bg-sky-400 dark:focus-visible:ring-offset-slate-900"
+          class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-blue-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue-light focus-visible:ring-offset-2 sm:w-auto dark:bg-brand-blue-light dark:text-slate-950 dark:hover:bg-brand-blue dark:focus-visible:ring-offset-slate-900"
         >
           <span aria-hidden="true">←</span>
           باز کردن در تلگرام
@@ -142,7 +142,7 @@ const categoryUrl = data.category ? `/category/${categorySlug(data.category)}/` 
             <span class="text-xs font-medium text-slate-500 dark:text-slate-400">دسته:</span>
             <a
               href={categoryUrl}
-              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-sky-100 hover:text-sky-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-sky-500/20 dark:hover:text-sky-300"
+              class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-brand-blue/10 hover:text-brand-blue-dark dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-brand-blue/20 dark:hover:text-brand-blue-light"
             >
               #{data.category}
             </a>
@@ -154,7 +154,7 @@ const categoryUrl = data.category ? `/category/${categorySlug(data.category)}/` 
     <div class="mt-6 flex justify-center">
       <a
         href="/"
-        class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+        class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
       >
         <span aria-hidden="true">→</span>
         بازگشت به آرشیو

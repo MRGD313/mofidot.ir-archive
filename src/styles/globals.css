@@ -1,13 +1,128 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-red: #e53935;
+  --color-brand-red-dark: #b71c1c;
+  --color-brand-red-light: #ef5350;
+  --color-brand-blue: #1e88e5;
+  --color-brand-blue-dark: #0d47a1;
+  --color-brand-blue-light: #60a5fa;
+}
+
 /* Tailwind v4 defaults `dark:` to prefers-color-scheme. Use the class strategy
    so the theme toggle can switch modes manually. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Pagefind UI follows the site theme as well. */
+/* ---------- Pagefind UI: RTL + Brand + Dark mode overrides ---------- */
+.pagefind-ui {
+  --pagefind-ui-scale: 0.85;
+  --pagefind-ui-primary: #1e88e5;
+  --pagefind-ui-text: #0f172a;
+  --pagefind-ui-background: transparent;
+  --pagefind-ui-border: #e2e8f0;
+  --pagefind-ui-tag: #f1f5f9;
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 12px;
+  --pagefind-ui-image-border-radius: 8px;
+  --pagefind-ui-font: inherit;
+  width: 100%;
+  direction: rtl;
+  text-align: right;
+}
+
 .dark .pagefind-ui {
-  --pagefind-ui-text: #e2e8f0;
-  --pagefind-ui-background: #0f172a;
+  --pagefind-ui-primary: #60a5fa;
+  --pagefind-ui-text: #f1f5f9;
   --pagefind-ui-border: #334155;
   --pagefind-ui-tag: #1e293b;
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__search-input {
+  direction: rtl;
+  text-align: right;
+  font-family: inherit;
+  border-radius: var(--pagefind-ui-border-radius);
+  background-color: transparent;
+  color: var(--pagefind-ui-text);
+  padding-right: 2.75rem !important;
+  padding-left: 4.5rem !important;
+  font-weight: 500;
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__search-input::placeholder {
+  color: var(--pagefind-ui-text);
+  opacity: 0.45;
+}
+
+/* The icon is a ::before on the form, not a separate element. */
+html[dir="rtl"] .pagefind-ui .pagefind-ui__form::before {
+  left: auto;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--pagefind-ui-text);
+  opacity: 0.55;
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__search-clear {
+  right: auto;
+  left: 0.5rem;
+  top: 50%;
+  height: auto;
+  transform: translateY(-50%);
+  background-color: transparent;
+  color: var(--pagefind-ui-text);
+  font-family: inherit;
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__drawer,
+html[dir="rtl"] .pagefind-ui .pagefind-ui__results,
+html[dir="rtl"] .pagefind-ui .pagefind-ui__result,
+html[dir="rtl"] .pagefind-ui .pagefind-ui__message,
+html[dir="rtl"] .pagefind-ui .pagefind-ui__filter-panel,
+html[dir="rtl"] .pagefind-ui .pagefind-ui__filter-block,
+html[dir="rtl"] .pagefind-ui .pagefind-ui__filter-value {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__result-title a {
+  color: var(--pagefind-ui-text);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__result-title a:hover {
+  color: var(--pagefind-ui-primary);
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__result-excerpt {
+  color: var(--pagefind-ui-text);
+  opacity: 0.8;
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__filter-checkbox {
+  accent-color: var(--pagefind-ui-primary);
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__button {
+  border-radius: var(--pagefind-ui-border-radius);
+  border-color: var(--pagefind-ui-primary);
+  background-color: var(--pagefind-ui-primary);
+  color: #fff;
+  font-family: inherit;
+}
+
+.dark html[dir="rtl"] .pagefind-ui .pagefind-ui__button {
+  color: #0f172a;
+}
+
+html[dir="rtl"] .pagefind-ui .pagefind-ui__powered-by {
+  opacity: 0.5;
+}
+
+/* Keep Pagefind's internal scroll areas visually quiet. */
+html[dir="rtl"] .pagefind-ui .pagefind-ui__result-thumb {
+  margin-inline-start: 0;
+  margin-inline-end: calc(16px * var(--pagefind-ui-scale));
 }
