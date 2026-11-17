@@ -5,9 +5,6 @@ import MediaBadge from '../../components/MediaBadge.astro';
 import {
   categorySlug,
   formatDate,
-  formatRelative,
-  mediaEmoji,
-  mediaLabel,
   stripLeadingUrls,
   toPersianDigits,
 } from '../../lib/format';
@@ -34,30 +31,12 @@ const postTitle = firstLine
     ? `${firstLine.slice(0, 80)}…`
     : firstLine
   : `پست ${toPersianDigits(data.id)}`;
-const excerpt =
-  plainText.replace(/\s+/g, ' ').trim().slice(0, 160) || 'پست کانال تلگرام مفیدات';
 
-const escapeMap: Record<string, string> = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-};
+const compactText = plainText.replace(/\s+/g, ' ').trim();
+const excerpt = compactText
+  ? `${compactText.slice(0, 420)}${compactText.length > 420 ? '…' : ''}`
+  : null;
 
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => escapeMap[character] ?? character);
-}
-
-function linkify(value: string): string {
-  return escapeHtml(value).replace(/(https?:\/\/[^\s<]+)/g, (match) => {
-    const trailing = match.match(/[.,!?؛،»)\]}]+$/u)?.[0] ?? '';
-    const url = trailing ? match.slice(0, -trailing.length) : match;
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="break-all text-brand-blue underline decoration-brand-blue/50 underline-offset-2 hover:text-brand-blue-dark dark:text-brand-blue-light dark:hover:text-brand-blue">${url}</a>${trailing}`;
-  });
-}
-
-const textHtml = linkify(data.text);
 const categoryLinks = data.categories.map((category) => ({
   name: category,
   url: `/category/${categorySlug(category)}/`,
@@ -65,13 +44,13 @@ const categoryLinks = data.categories.map((category) => ({
 ---
 
 <BaseLayout
-  title={`${postTitle} | آرشیو مفیدات`}
-  description={excerpt}
+  title={`${postTitle} | مفیدات`}
+  description={excerpt ?? 'پست کانال تلگرام مفیدات'}
   ogTitle={postTitle}
-  ogDescription={excerpt}
+  ogDescription={excerpt ?? 'پست کانال تلگرام مفیدات'}
 >
-  <div class="mx-auto max-w-3xl">
-    <nav aria-label="مسیر صفحه" class="mb-4 flex flex-wrap items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+  <div class="mx-auto max-w-2xl">
+    <nav aria-label="مسیر صفحه" class="mb-5 flex flex-wrap items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
       <a href="/" class="hover:text-brand-blue dark:hover:text-brand-blue-light">خانه</a>
       <span aria-hidden="true">›</span>
       {
@@ -97,11 +76,14 @@ const categoryLinks = data.categories.map((category) => ({
       <span class="text-slate-700 dark:text-slate-300">{toPersianDigits(data.id)}</span>
     </nav>
 
-    <article data-pagefind-body class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900">
-      <div class="flex flex-wrap items-center gap-2">
+    <article
+      data-pagefind-body
+      class="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10 dark:border-slate-700 dark:bg-slate-900"
+    >
+      <div class="flex flex-wrap items-center justify-center gap-2">
         <MediaBadge type={data.media_type} duration={data.duration_sec} size="md" />
         <span data-pagefind-filter={`media:${data.media_type}`} class="sr-only">
-          نوع محتوا: {mediaLabel(data.media_type)}
+          نوع محتوا: {data.media_type}
         </span>
         <time
           datetime={data.date.toISOString()}
@@ -109,71 +91,38 @@ const categoryLinks = data.categories.map((category) => ({
           class="text-xs text-slate-500 dark:text-slate-400"
         >
           {formatDate(data.date)}
-          <span class="mx-1 opacity-50">•</span>
-          {formatRelative(data.date)}
         </time>
       </div>
 
-      <h1 class="mt-4 text-center text-xl font-bold leading-9 text-slate-900 sm:text-2xl sm:leading-10 dark:text-slate-100">
+      <h1 class="mt-5 text-2xl font-black leading-10 text-slate-900 sm:text-3xl sm:leading-[1.4] dark:text-slate-100">
         {postTitle}
       </h1>
 
       {
-        textHtml ? (
-          <div
-            class="mt-6 whitespace-pre-line break-words text-base leading-8 text-slate-800 dark:text-slate-200"
-            set:html={textHtml}
-          />
+        excerpt ? (
+          <p class="mt-5 text-sm leading-8 text-slate-600 dark:text-slate-300">
+            {excerpt}
+          </p>
         ) : (
-          <p class="mt-6 text-sm italic text-slate-400 dark:text-slate-500">بدون متن</p>
+          <p class="mt-5 text-sm italic text-slate-400 dark:text-slate-500">
+            بدون متن
+          </p>
         )
       }
 
-      <section class="mt-8 rounded-3xl bg-brand-blue/5 p-5 ring-1 ring-brand-blue/20 sm:p-6 dark:bg-brand-blue/10 dark:ring-brand-blue/30">
-        <p class="text-base font-bold text-brand-blue-dark dark:text-brand-blue-light">
-          <span aria-hidden="true">{mediaEmoji(data.media_type)}</span>
-          {' '}
-          این {mediaLabel(data.media_type)} در تلگرام است
-        </p>
-        <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
-          برای شنیدن/دیدن، روی دکمهٔ زیر بزنید.
-        </p>
-        <a
-          href={data.telegram_link}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-blue-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue-light focus-visible:ring-offset-2 sm:w-auto dark:bg-brand-blue-light dark:text-slate-950 dark:hover:bg-brand-blue dark:focus-visible:ring-offset-slate-900"
-        >
-          <span aria-hidden="true">←</span>
-          باز کردن در تلگرام
-        </a>
-      </section>
-
-      {
-        categoryLinks.length > 0 && (
-          <div class="mt-6 flex flex-wrap items-center gap-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">دسته‌ها:</span>
-            {categoryLinks.map((category) => (
-              <a
-                href={category.url}
-                class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-brand-blue/10 hover:text-brand-blue-dark dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-brand-blue/20 dark:hover:text-brand-blue-light"
-              >
-                #{category.name}
-              </a>
-            ))}
-          </div>
-        )
-      }
-    </article>
-
-    <div class="mt-6 flex justify-center">
       <a
-        href="/"
-        class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+        href={data.telegram_link}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-8 flex w-full items-center justify-center gap-2 rounded-3xl bg-brand-blue px-6 py-5 text-lg font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-blue-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue-light focus-visible:ring-offset-2 dark:bg-brand-blue-light dark:text-slate-950 dark:hover:bg-brand-blue dark:focus-visible:ring-offset-slate-900"
       >
-        <span aria-hidden="true">→</span>
-        بازگشت به آرشیو
+        <span aria-hidden="true">↗</span>
+        مشاهده و دانلود در تلگرام
       </a>
-    </div>
+
+      <p class="mt-4 text-xs text-slate-500 dark:text-slate-400">
+        این پست در تلگرام و بله موجود است.
+      </p>
+    </article>
   </div>
 </BaseLayout>

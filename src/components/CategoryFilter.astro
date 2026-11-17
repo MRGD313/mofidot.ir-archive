@@ -5,9 +5,15 @@ interface Props {
   categories: string[];
   activeCategory: string | null;
   activeMedia: string | null;
+  basePath?: string;
 }
 
-const { categories, activeCategory, activeMedia } = Astro.props;
+const {
+  categories,
+  activeCategory,
+  activeMedia,
+  basePath = Astro.url.pathname,
+} = Astro.props;
 
 const mediaOptions: Array<{ value: MediaType; label: string }> = [
   { value: 'voice', label: 'وویس' },
@@ -22,7 +28,7 @@ function hrefFor(category: string | null, media: string | null): string {
   if (category) params.set('cat', category);
   if (media) params.set('media', media);
   const query = params.toString();
-  return query ? `${Astro.url.pathname}?${query}` : Astro.url.pathname;
+  return query ? `${basePath}?${query}` : basePath;
 }
 
 const chipBase =
@@ -34,7 +40,7 @@ const chipInactive =
 <section
   data-pagefind-ignore
   aria-label="فیلتر پست‌ها"
-  class="sticky top-16 z-30 -mx-4 mb-6 space-y-2 border-y border-slate-200 bg-slate-50/95 px-4 py-3 shadow-[0_10px_22px_-18px_rgba(15,23,42,0.65)] backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:border-slate-800 dark:bg-slate-950/95"
+  class="sticky top-[4.75rem] z-30 -mx-4 mb-6 space-y-2 border-y border-slate-200 bg-slate-50/95 px-4 py-3 shadow-[0_10px_22px_-18px_rgba(15,23,42,0.65)] backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:border-slate-800 dark:bg-slate-950/95"
 >
   <div class="flex flex-wrap items-center gap-2">
     <span class="ml-1 shrink-0 text-xs font-semibold text-slate-500 dark:text-slate-400">دسته:</span>
