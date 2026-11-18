@@ -7,6 +7,7 @@
   --color-brand-blue: #1e88e5;
   --color-brand-blue-dark: #0d47a1;
   --color-brand-blue-light: #60a5fa;
+  --font-sans: 'Vazirmatn Variable', 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Tailwind v4 defaults `dark:` to prefers-color-scheme. Use the class strategy
@@ -24,7 +25,7 @@
   --pagefind-ui-border-width: 1px;
   --pagefind-ui-border-radius: 12px;
   --pagefind-ui-image-border-radius: 8px;
-  --pagefind-ui-font: inherit;
+  --pagefind-ui-font: 'Vazirmatn Variable', 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
   width: 100%;
   direction: rtl;
   text-align: right;
